@@ -1,0 +1,44 @@
+# Maintainer: Nash Kaminski <nashkaminski@comcast.net>
+# Contributor: Peter Chinetti <peter@chinetti.me>
+
+_pkgbase=amd-spi
+pkgname=amd-spi-dkms
+pkgver=1
+pkgrel=1
+pkgdesc="SPI driver for AMD chipsets"
+arch=('i686' 'x86_64')
+url="http://repository.timesys.com/buildsources/a/amd-gseriessoc-spi/"
+license=('GPL2')
+depends=('dkms')
+conflicts=("${_pkgbase}")
+install=${pkgname}.install
+source=('spi_amd.c' 'spi_amd.h' 'spirom.c' 'spirom.h' 'Makefile' 'dkms.conf')
+md5sums=('3cbc6410f1e2b6009f1a74731f6fc557'
+         '2233c2a926f120b07153e3ea0ba7474f'
+         'cbdb4287f6401f24579ac480e5ff2e18'
+         '56f117ed31b82b02182c7a491364d112'
+         'a543990a598c90a535053bd38bd28798'
+         'd92a6d305a090871d4c0b70166075039')
+
+build() {
+  msg2 "Starting make..."
+  make
+}
+
+package() {
+  # Install
+  msg2 "Starting install..."
+
+  # Copy dkms.conf
+  install -Dm644 dkms.conf "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+
+  # Set name and version
+  sed -e "s/@_PKGBASE@/${_pkgbase}/" \
+      -e "s/@PKGVER@/${pkgver}/" \
+      -i "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/dkms.conf
+
+  # Copy sources (including Makefile)
+  cp -r Makefile "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
+  cp -r *.c "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
+  cp -r *.h "${pkgdir}"/usr/src/${_pkgbase}-${pkgver}/
+}
